@@ -52,8 +52,8 @@ function getHeader(name,strArr,intArr){
     document.write(res);
 }
 
-name = "Reconn"
-strArr=["type","sessionKey"]
-intArr=["clientId","reconnAll"]
+name = "CandidateInfo"
+strArr=["candidate","sdpMLineIndex","sdpMid"]
+intArr=[""]
 
 getHeader(name,strArr,intArr);
