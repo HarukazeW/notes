@@ -63,3 +63,75 @@
 5. RAII class应该提供获取其所管理的资源的办法
 6. new[]和delete[]配套使用，鉴于为用户减少误用，尽量不要对数组typedef
 7. 以独立语句将newed对象置入智能指针，一旦异常抛出，就可能产生难以察觉的资源泄漏(如其他参数调用失败，导致内存成功分配但未赋值给智能指针)
+
+#### 设计与声明
+
+1. 促进接口正常使用，阻止误用，尽量使其与内置类型保持一致。
+2. shared_ptr支持定制custom deleter,这可防范dll问题，可以用来自动解除互斥锁等。
+3. 设计class就是type,应该审慎考虑
+4. 尽量以pass-by-reference-const替换pass-by-value。高效且避免slicing problem。但是对于内置类型，stl iterator,和函数对象，pass-by-value更适合。
+5. 切记将成员变量声明为private。这可赋予客户访问数据一致性，可细微划分访问控制，封装。并且内部改动后不会影响用户代码。在这一点上，protected比public好不了多少。
+6. 可以的话，使用non-member non-friend函数替换member函数这样可以增加封装性，package flexibility和扩充性。可以与原class共处一个namespace内，放于多个文件中，相关工具自成一类，放于各自头文件中。如std中的各种stl一样。
+7. 如果需要为某个函数的所有参数进行类型转换，如支持`int * a => int *a`，那么这个函数必须是个non-member function。
+
+8. 对于pimpl手法的类，往往可以自己提供更高效的swap。default swap函数定义
+
+   ```c++
+   namespace std{
+       template<typename T>
+       void swap(T &a,T &b){
+           T temp(a);
+           a = b;
+           b = temp;
+       }
+   }
+   ```
+
+   对std::swap特化
+
+   ```c++
+   namespace std {
+       template<> //表示它是std::swap的一个全特化
+       void swap<Widget>(Widget &a,Widget &b){ //表示这一特化版本是针对T为Widget设计
+           a.swap(b);
+       }
+   }
+   ```
+
+   但是对于Widget是个template的情况，我们只能partially specialize class templates,不可以 partially specialize function templates。一般可以通过overload
+
+   ```c++
+   namespace std {
+       template<typename T> //表示它是std::swap的一个全特化
+       void swap(Widget<T> &a,Widget<T> &b){ 
+           a.swap(b);
+       }
+   }
+   //但是c++不允许向std添加新东西，所以这不合法
+   ```
+
+   所以可以直接添加到其命名空间中
+
+   ```c++
+   namespace WidgetStuff {
+       template<typename T> //表示它是std::swap的一个全特化
+       class Widget {...}; 
+       
+       templat<typename T> 
+       void swap(Widget<T> &a,Widget<T> &b){ //这儿并不属于std
+           a.swap(b);
+       }
+   }
+   // ok,可以
+   ```
+
+   看到swap,c++回去查找global作用域或T所在命名空间内任何T专属的swap。所以调用时务必注意。若
+
+   调用std::swap，会使得编译器忽略掉template特化。
+
+   ```c++
+   using std::swap;
+   swap(obj1,obj2);
+   ```
+
+   注意swap成员函数不应抛出异常。因为swap用途就是帮助class内部其他函数提供异常安全性保障。
