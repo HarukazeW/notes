@@ -67,11 +67,17 @@
 #### 设计与声明
 
 1. 促进接口正常使用，阻止误用，尽量使其与内置类型保持一致。
+
 2. shared_ptr支持定制custom deleter,这可防范dll问题，可以用来自动解除互斥锁等。
+
 3. 设计class就是type,应该审慎考虑
+
 4. 尽量以pass-by-reference-const替换pass-by-value。高效且避免slicing problem。但是对于内置类型，stl iterator,和函数对象，pass-by-value更适合。
+
 5. 切记将成员变量声明为private。这可赋予客户访问数据一致性，可细微划分访问控制，封装。并且内部改动后不会影响用户代码。在这一点上，protected比public好不了多少。
+
 6. 可以的话，使用non-member non-friend函数替换member函数这样可以增加封装性，package flexibility和扩充性。可以与原class共处一个namespace内，放于多个文件中，相关工具自成一类，放于各自头文件中。如std中的各种stl一样。
+
 7. 如果需要为某个函数的所有参数进行类型转换，如支持`int * a => int *a`，那么这个函数必须是个non-member function。
 
 8. 对于pimpl手法的类，往往可以自己提供更高效的swap。default swap函数定义
@@ -135,3 +141,23 @@
    ```
 
    注意swap成员函数不应抛出异常。因为swap用途就是帮助class内部其他函数提供异常安全性保障。
+
+#### 实现
+
+1. 尽可能延长变量定义式的出现，避免无意义的构造析构以及default构造被调用
+2. 尽量避免转型，类型转换往往真的令编译器编译出运行期间执行的码。例如`double x = (double)2/3;`会首先生成一个底层为double，值为2的变量
+3. dynamic_casts的代价高昂，可以以使用类型安全容器存储派生类指针或提供virtual函数，在不支持的base class中do nothing的方式来尽可能替代。
+4. 如果转型必要，可以试着将他们隐藏在某个函数内部，客户可以调用该函数，而不需在自己代码中进行转型。
+5. 避免返回handles(reference,pointers,iterators)指向函数内部，降低(dangling handles)的可能性。（导致handle比其所指对象更长寿）
+6. 异常安全函数保证异常时不泄露任何资源，不允许数据败坏。异常安全函数提供三种保证之一： 
+   - 基本承诺：当异常抛出，程序内任何事物保持在有效的状态，不会有对象或数据结构被破坏
+   - 强烈保证：如果异常抛出，函数失败，程序会回复到调用以前的状态
+   - nothrow 保证，承诺不抛出异常。
+
+7. 强烈保证往往可以通过copy-and-swap实现，即构造一个副本，在副本上做修改，而后swap。
+8. 函数提供的异常安全保证最多只等于其所调用函数的异常安全保证的级别。应该尽可能写出较高异常安全保证的函数。
+9. inline函数应放在头文件内，因为其替换是在编译器进行。编译器不会对函数指针调用的inline函数实施inline
+10. 不要在copy construct,destruct,virtual function 中使用inline,那会导致许多开销。
+11. 谨慎使用inline,非inline对调试更友好。且对用户而言，也不会因为函数内部实现变化导致需要重新编译。
+12. 尽量做到接口与实现分离，以声明依存性替换定义的依存性。可以使用pimpl idiom和Interface class的方式来降低编译依存性。
+13. 程序库头文件应该以完全且仅有声明式的形式存在。
