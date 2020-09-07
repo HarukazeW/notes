@@ -153,7 +153,6 @@
    - 基本承诺：当异常抛出，程序内任何事物保持在有效的状态，不会有对象或数据结构被破坏
    - 强烈保证：如果异常抛出，函数失败，程序会回复到调用以前的状态
    - nothrow 保证，承诺不抛出异常。
-
 7. 强烈保证往往可以通过copy-and-swap实现，即构造一个副本，在副本上做修改，而后swap。
 8. 函数提供的异常安全保证最多只等于其所调用函数的异常安全保证的级别。应该尽可能写出较高异常安全保证的函数。
 9. inline函数应放在头文件内，因为其替换是在编译器进行。编译器不会对函数指针调用的inline函数实施inline
@@ -161,3 +160,11 @@
 11. 谨慎使用inline,非inline对调试更友好。且对用户而言，也不会因为函数内部实现变化导致需要重新编译。
 12. 尽量做到接口与实现分离，以声明依存性替换定义的依存性。可以使用pimpl idiom和Interface class的方式来降低编译依存性。
 13. 程序库头文件应该以完全且仅有声明式的形式存在。
+
+#### 继承与面向对象设计
+
+1. public继承意味is-a,适用于base class身上的每一件事情一定也适用于derived class
+2. derived class内名称会遮掩base-class内名称，public继承不应如此。
+3. 为了让被遮掩的名称可见，可以使用using声明式或者转交函数(forwarding functions)
+4. non-virtual function,是继承接口和实现，pure virtual  function只继承接口，impure virtual function同时继承接口和缺省实现。
+5. 若想提供缺省实现，但又避免使用者默认调用。可以另加一个protetected 函数供derived class调用。或者声明为pure virtual,但是提供实现，供子类主动调用。
