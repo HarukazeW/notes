@@ -168,3 +168,10 @@
 3. 为了让被遮掩的名称可见，可以使用using声明式或者转交函数(forwarding functions)
 4. non-virtual function,是继承接口和实现，pure virtual  function只继承接口，impure virtual function同时继承接口和缺省实现。
 5. 若想提供缺省实现，但又避免使用者默认调用。可以另加一个protetected 函数供derived class调用。或者声明为pure virtual,但是提供实现，供子类主动调用。
+6. 有很多方案可以替代virtual函数
+   - **NVI(non-virtual interface)手法**，接口为non-virtual 函数，在其内部调用virtual部分。从而可以很方便在interface内做一些公共处理准备工作。
+   - 将上述virtual函数替换为Function Pointers,构造时传入函数指针，在interface内部调用function pointers。这样更加灵活，不同对象可以对应不同函数，且便于变更。但是，若需访问类内部成员，会降低封装性。**Strategy 模式**
+   - 使用function template替代内部virtual函数。**Strategy模式**
+   - 将上述成员函数指针替换为该方法基类的指针。接口内部，调用该方法基类指针的virtual函数。（计算方法为类，具体不同的计算设计为不同的derived class）**Strategy模式的传统实现**
+
+7. 
