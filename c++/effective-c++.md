@@ -173,5 +173,12 @@
    - 将上述virtual函数替换为Function Pointers,构造时传入函数指针，在interface内部调用function pointers。这样更加灵活，不同对象可以对应不同函数，且便于变更。但是，若需访问类内部成员，会降低封装性。**Strategy 模式**
    - 使用function template替代内部virtual函数。**Strategy模式**
    - 将上述成员函数指针替换为该方法基类的指针。接口内部，调用该方法基类指针的virtual函数。（计算方法为类，具体不同的计算设计为不同的derived class）**Strategy模式的传统实现**
-
-7. 
+7. 不要重新定义一个继承来的函数的缺省值，因为默认值是静态绑定，编译器确定。所以会出现调用子类函数，使用基类默认参数的情形。
+8. 可以使用NVI手法，将默认参数放于non-virtual-interface中。可以避免掉必须指定相同默认参数带来的代码相依性。 
+9. composition(复合)意味着is-implementated-in-terms-of
+10. private继承意味implemented-in-terms-of，意味着只继承实现部分，不继承接口。尽可能使用复合替代private继承
+11. 也可以构造一个public继承的子类，把该对象作为成员对象。从而避免private继承，变为复合关系。
+12. private继承劣势：
+    - 其再继承的derived class虽不能调用上上层基类的virtual function,但是依然可以重新定义它。
+    - 使用复合替代，这样可以降低编译依存性。只需具体实现中包含待使用库类的头文件即可。
+13. private继承可以造成empty base最小化。
