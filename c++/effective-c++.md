@@ -182,3 +182,12 @@
     - 其再继承的derived class虽不能调用上上层基类的virtual function,但是依然可以重新定义它。
     - 使用复合替代，这样可以降低编译依存性。只需具体实现中包含待使用库类的头文件即可。
 13. private继承可以造成empty base最小化。
+14. 多重继承比单一继承复杂，可能导致新的歧义性，也会增加大小，初始化等成本。尽量让virtual base classes不带任何数据
+15. 多重继承偶有正当用途，例如public继承某个interface class,private继承某个协助实现的class
+
+#### 模版与泛型编程
+
+1. 对于class,接口是显示的，多态通过virtual发生于运行期。而对于template，接口是隐式的，多态通过template具现化和函数重载解析发生于编译器。
+2. 声明template参数时，前缀关键字class和typename均可，没区别
+3. 函数内部会默认nested dependent names非类型，需要使用typename放在前面以标识它nested dependent type name。但不可在base class list和member initialization list前标识typename
+4. 当derived class继承一个模板化基类时，其默认调用基类接口会失败，因为编译器认为其可能继承自一个特化版本的base class template，从而可能不提供那个接口。想要调用的话，可以调用前加this->或函数内部使用using声明式的方式，或直接baseclassname::接口的方式来显示将其引用进内部。
