@@ -188,6 +188,25 @@
 #### 模版与泛型编程
 
 1. 对于class,接口是显示的，多态通过virtual发生于运行期。而对于template，接口是隐式的，多态通过template具现化和函数重载解析发生于编译器。
+
 2. 声明template参数时，前缀关键字class和typename均可，没区别
+
 3. 函数内部会默认nested dependent names非类型，需要使用typename放在前面以标识它nested dependent type name。但不可在base class list和member initialization list前标识typename
+
 4. 当derived class继承一个模板化基类时，其默认调用基类接口会失败，因为编译器认为其可能继承自一个特化版本的base class template，从而可能不提供那个接口。想要调用的话，可以调用前加this->或函数内部使用using声明式的方式，或直接baseclassname::接口的方式来显示将其引用进内部。
+
+5. templates生成多个class和多个函数，所以templates代码不该与造成膨胀的template参数产生相依关系
+
+6. 因非类型模版参数造成的膨胀，可以通过以函数参数或class成员变量替换template参数而消除膨胀
+
+7. 因类型参数造成的膨胀，可以使完全相同二进制表述的具现类型共享实现码，如只使用一份底层实现（void*）操作实现
+
+8. 使用member function templates(成员函数模版,成员函数参数有单独template类型)生成“可接收所有兼容类型”的函数。
+
+9. 如若member templates用于generalized copy construct或generalized assignment，此时还是要声明正常的copy construct和copy assignment函数，否则如前所说，编译器会生成default construct和default assignment
+
+10. 当一个class template提供与此template相关的函数支持所有参数之隐式转换时，需要将其定义为定义在class template内部的friend函数。
+
+    
+
+    

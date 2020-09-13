@@ -844,3 +844,20 @@ class A{
 3. 可以均明确declare，可以=default,从而move 可用
 4. copy和assign子类不会自动调用基类相应函数，需手动调用。
 5. 继承方式不会改变基类构造函数的访问权限。不可以用using方式改变。copy,move不会被继承。
+
+## chapt16
+
+定义方式： `template <typename T>`
+
+1. template 实例化是在编译器完成的
+2. nontype表现为值的不同，如`template<unsigned N,unsigned M>`，传入的值需要是constexpr。
+3. template定义声明都应写在头文件中
+4. 务必注意调用template的类实现了所有该类所需要的运算符，否则便会报link error
+
+#### 类模版
+
+`template <typenameT> calss AT` 
+
+instanitating: `AT<int> ia`
+
+1. 成员函数用到哪个才会实例化哪个

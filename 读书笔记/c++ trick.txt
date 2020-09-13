@@ -1,4 +1,0 @@
-##### enum hack
-
-1. 使用enum的形式定义变量。如类内使用`enum {NumTurns = 5}`从而使得，NumTurns值为常量5。
-2. 相比const,其更接近define，如不可取地址，绝对被编译器认可为constexpr常量,绝不会导致非必要内存分配。
