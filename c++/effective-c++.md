@@ -188,25 +188,34 @@
 #### 模版与泛型编程
 
 1. 对于class,接口是显示的，多态通过virtual发生于运行期。而对于template，接口是隐式的，多态通过template具现化和函数重载解析发生于编译器。
-
 2. 声明template参数时，前缀关键字class和typename均可，没区别
-
 3. 函数内部会默认nested dependent names非类型，需要使用typename放在前面以标识它nested dependent type name。但不可在base class list和member initialization list前标识typename
-
 4. 当derived class继承一个模板化基类时，其默认调用基类接口会失败，因为编译器认为其可能继承自一个特化版本的base class template，从而可能不提供那个接口。想要调用的话，可以调用前加this->或函数内部使用using声明式的方式，或直接baseclassname::接口的方式来显示将其引用进内部。
-
 5. templates生成多个class和多个函数，所以templates代码不该与造成膨胀的template参数产生相依关系
-
 6. 因非类型模版参数造成的膨胀，可以通过以函数参数或class成员变量替换template参数而消除膨胀
-
 7. 因类型参数造成的膨胀，可以使完全相同二进制表述的具现类型共享实现码，如只使用一份底层实现（void*）操作实现
-
 8. 使用member function templates(成员函数模版,成员函数参数有单独template类型)生成“可接收所有兼容类型”的函数。
-
 9. 如若member templates用于generalized copy construct或generalized assignment，此时还是要声明正常的copy construct和copy assignment函数，否则如前所说，编译器会生成default construct和default assignment
-
 10. 当一个class template提供与此template相关的函数支持所有参数之隐式转换时，需要将其定义为定义在class template内部的friend函数。
+11. traits classes使得类型相关信息在编译器可用，以templates和templats特化完成实现
+12. 整合overloadding后，可以实现，在编译器对不同类型执行不同操作的目的。
+    - 不同iter类内部typedef不同类型为iter_category
+    - 在advance函数内部调用`doAdvance(iter,d,iter_category())`
+    - docategory为函数模版，依据接收最后一个参数的类型不同进行不同的处理
 
-    
+13. template metaprogramming将工作由运行期移往编译器，因而得以实现早起错误侦测和更高执行效率。
+14. tmp可以用以生成定制代码，也可以用来避免生产对某些特殊类型不适合的代码。
+15. set_new _handler允许客户指定一个函数，在分配内存失败时调用
+16. 分配内存失败会抛出异常，因此分配后检查是否为空没有意义。可以`new (std::throw) Widget`强制其不抛出异常，但是其构造函数还是可能会抛出异常。所以`nothrows new`局限较大，避免使用。
+17. 诸多理由会需要自定new和delete,包括改善效能，对heap运用错误调试，收集heap使用信息等。
+18. operator new应内含一个infinite loop,并在其中尝试 分配内存，若分配失败，就调用new-handler。直至分配成功或者new-handler抛出异常，或new-handler为null，抛出异常。它应该有能力处理0bytes申请，class member new还应该处理比正确大小更大的(错误）申请
+19. operator delete在收到null指针时直接return,class member delete 也同样该处理比正确大小更大的（错误）申请。
+20. 当写一个placement operator new时，务必写出对应参数的placement operator delete，当new 成功，构造失败时，会调用该placement operator delete function，若无，则不会调用，从而引发内存泄漏。
+21. 当声明placemetn new和placement delete时，会遮掩正常版本。可以建立一个base class，内中声明正常形式的new和delete并在其中调用默认new/delete，目标类继承该类，并using 基类new/delete。
 
-    
+#### 杂项讨论
+
+1. 严肃对待warnnings。但不要过度依赖warnning,不同编译器警告能力不同。
+
+
+
